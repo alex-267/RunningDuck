@@ -9,12 +9,13 @@ public class Main {
         frame.setTitle("Running Duck");
         frame.setResizable(false);
 
+        GamePanel gamePanel = new GamePanel();
+        frame.add(gamePanel);
+        frame.pack();
+
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
 
-        GamePanel gamePanel = new GamePanel();
-        frame.add(gamePanel);
-        
-        frame.pack();
+        gamePanel.startGameThread();
     }
 }
