@@ -55,7 +55,7 @@ public class Player extends Entity {
         }
 
         if(kH.isSpacePressed()){
-            if(this.getY()>150 && canJumpAgain){
+            if(this.getY()>180 && canJumpAgain){
                 this.setY(this.getY()-this.getSpeed());
                 isJumping = true;
             }
@@ -77,7 +77,7 @@ public class Player extends Entity {
         if(!kH.isSpacePressed()){
             canJumpAgain = false;
             if (this.getY() < 300) {
-                this.setY(getY()+this.getSpeed());
+                this.setY(getY()+this.getSpeed()+3);
             }
             else{
                 canJumpAgain = true;
@@ -87,6 +87,7 @@ public class Player extends Entity {
     }
 
     public void draw(Graphics2D g2) {
+        //g2.drawRect(getX(), getY(), 64, 64);
         if(isJumping){
             g2.drawImage(imgJump, getX(), getY(), gp.getTileSize(), gp.getTileSize(), null);
         }

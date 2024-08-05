@@ -26,7 +26,8 @@ public class GamePanel extends JPanel implements Runnable{
     Thread gameThread;
     KeyHandler kH = new KeyHandler();
     Player player = new Player(this, kH);
-    Background bg = new Background(this, kH);
+    Background bg = new Background(this);
+    ObstacleManager obstacleManager = new ObstacleManager(this);
 
     //FPS
     private int FPS = 60;
@@ -69,6 +70,7 @@ public class GamePanel extends JPanel implements Runnable{
     public void update(){
         bg.update();
         player.update();
+        obstacleManager.update();
     }
 
     public void paintComponent(Graphics g){
@@ -78,6 +80,7 @@ public class GamePanel extends JPanel implements Runnable{
 
         bg.draw(g2);
         player.draw(g2);
+        obstacleManager.draw(g2);
         
         g2.dispose();
     }

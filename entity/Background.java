@@ -9,13 +9,11 @@ import main.*;
 
 public class Background extends Entity {
     private GamePanel gp;
-    private KeyHandler kH;
     private BufferedImage img;
 
-    public Background(GamePanel gp, KeyHandler kH) {
-        super(0, 0, 10);
+    public Background(GamePanel gp) {
+        super(0, 0, 5);
         this.gp = gp;
-        this.kH = kH;
         this.getBackgroundImage();
     }
 
