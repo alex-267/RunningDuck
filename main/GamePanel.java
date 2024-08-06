@@ -23,11 +23,25 @@ public class GamePanel extends JPanel implements Runnable{
     final private int screenHeight = tileSize * maxScreenRow; //512 px
     public int getScreenHeight() {return screenHeight;}
 
-    Thread gameThread;
-    KeyHandler kH = new KeyHandler();
-    Player player = new Player(this, kH);
-    Background bg = new Background(this);
-    ObstacleManager obstacleManager = new ObstacleManager(this);
+    private Thread gameThread;
+    private KeyHandler kH = new KeyHandler();
+    private Player player = new Player(this, kH);
+    private Background bg = new Background(this);
+    private ObstacleManager obstacleManager = new ObstacleManager(this);
+
+    public Player getPlayer() {return this.player;}
+    public ObstacleManager getObstacleManager() {return this.obstacleManager;}
+    public Background getBackgrounds() {return this.bg;}
+
+    private int state = 0;
+    public int getState() {return this.state;}
+    public void setState(int state) {this.state = state;}
+
+    private final int gameState = 0;
+    public int getGameState() {return this.gameState;}
+    
+    private final int loseState = 1;
+    public int getLoseState() {return this.loseState;}
 
     //FPS
     private int FPS = 60;
@@ -68,9 +82,11 @@ public class GamePanel extends JPanel implements Runnable{
     }
 
     public void update(){
-        bg.update();
-        player.update();
-        obstacleManager.update();
+        if(state == gameState){
+            bg.update();
+            player.update();
+            obstacleManager.update();
+        }
     }
 
     public void paintComponent(Graphics g){
@@ -82,6 +98,22 @@ public class GamePanel extends JPanel implements Runnable{
         player.draw(g2);
         obstacleManager.draw(g2);
         
+        if(state == loseState){
+            drawLoseScreen(g2);
+        }
+
         g2.dispose();
+    }
+
+    public void drawLoseScreen(Graphics2D g2) {
+        g2.setColor(new Color(0, 0, 0, 100));
+        g2.fillRect(0, 0, screenWidth, screenHeight);
+
+        g2.setColor(new Color(255, 0, 0, 100));
+        g2.fillRect(0, 80, screenWidth, 120);
+
+        player.drawLoseScore(g2);
+
+        g2.setColor(Color.black);
     }
 }

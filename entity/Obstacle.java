@@ -9,13 +9,15 @@ public class Obstacle extends Entity {
     private GamePanel gp;
     private BufferedImage img;
     private int width, height;
+    private Rectangle hitbox;
     
-    public Obstacle(GamePanel gp, int width, int height) {
-        super(gp.getWidth(), 364-height, 5);
+    public Obstacle(GamePanel gp, int width, int height, int speed) {
+        super(gp.getWidth(), 364-height, speed);
         this.gp = gp;
         this.width = width;
         this.height = height;
         this.getObstacleImage();
+        this.hitbox = new Rectangle(this.getX(), this.getY(), this.width, this.height);
     }
 
     public void getObstacleImage() {
@@ -49,10 +51,19 @@ public class Obstacle extends Entity {
 
     public void update() {
         this.setX(this.getX() - this.getSpeed());
+        updateHitbox();
+        if(hitbox.intersects(gp.getPlayer().getDuckHitbox())){
+            gp.setState(gp.getLoseState());
+        }
     }
 
     public void draw(Graphics2D g2) {
         g2.drawImage(img, getX(), getY(), width, height, null);
+    }
+
+    public void updateHitbox(){
+        this.hitbox.x = this.getX();
+        this.hitbox.y = this.getY();
     }
 
 }

@@ -9,15 +9,28 @@ import main.GamePanel;
 public class ObstacleManager {
     private GamePanel gp;
     private ArrayList<Obstacle> obstacle = new ArrayList<Obstacle>();
-    private long lastExecutionTime = 0;
-    private long timeBeforeNextExecution = 5000;
+    private long lastExecutionTime;
+    private long timeBeforeNextExecution;
+    private int randomTimer;
     private Random random = new Random();
     private int[][] allObstacle = new int[5][2];
     private int nextObstacle;
+    private int obstacleSpeed;
+    private int secondMultiplier;
 
     public ObstacleManager(GamePanel gp) {
         this.gp = gp;
         obstacleCreation();
+        originalStats();
+    }
+
+    public void originalStats(){
+        lastExecutionTime = 0;
+        timeBeforeNextExecution = 5000;
+        randomTimer = 5;
+        obstacleSpeed = 5;
+        secondMultiplier = 1000;
+        obstacle.clear();
     }
 
     public void obstacleCreation() {
@@ -43,8 +56,9 @@ public class ObstacleManager {
         }
         if (System.currentTimeMillis() - lastExecutionTime >= timeBeforeNextExecution) {
             nextObstacle = random.nextInt(5);
-            obstacle.add(new Obstacle(gp, allObstacle[nextObstacle][0], allObstacle[nextObstacle][1]));
+            obstacle.add(new Obstacle(gp, allObstacle[nextObstacle][0], allObstacle[nextObstacle][1], obstacleSpeed));
             lastExecutionTime = System.currentTimeMillis();
+            timeBeforeNextExecution = (random.nextInt(randomTimer)+1)*secondMultiplier;
         }
     }
 
@@ -53,4 +67,11 @@ public class ObstacleManager {
             o.draw(g2);
         }
     }
+
+    public int getSecondMultiplier() {return secondMultiplier;}
+    public void setSecondMultiplier(int secondMultiplier) {this.secondMultiplier = secondMultiplier;}
+    public int getObstacleSpeed() {return obstacleSpeed;}
+    public void setObstacleSpeed(int obstacleSpeed) {this.obstacleSpeed = obstacleSpeed;}
+    public int getRandomTimer() {return randomTimer;}
+    public void setRandomTimer(int randomTimer) {this.randomTimer = randomTimer;}
 }
