@@ -3,6 +3,7 @@ package main;
 import javax.swing.JPanel;
 
 import entity.*;
+import entity.Button;
 
 import java.awt.*;
 public class GamePanel extends JPanel implements Runnable{
@@ -25,6 +26,7 @@ public class GamePanel extends JPanel implements Runnable{
 
     private Thread gameThread;
     private KeyHandler kH = new KeyHandler();
+    private MouseHandler mH = new MouseHandler();
     private Player player = new Player(this, kH);
     private Background bg = new Background(this);
     private ObstacleManager obstacleManager = new ObstacleManager(this);
@@ -32,8 +34,11 @@ public class GamePanel extends JPanel implements Runnable{
     public Player getPlayer() {return this.player;}
     public ObstacleManager getObstacleManager() {return this.obstacleManager;}
     public Background getBackgrounds() {return this.bg;}
+    public MouseHandler getMouseHandler() {return this.mH;}
 
-    private int state = 0;
+    private Button retry, home, play, red, green, blue;
+
+    private int state = 2;
     public int getState() {return this.state;}
     public void setState(int state) {this.state = state;}
 
@@ -42,6 +47,9 @@ public class GamePanel extends JPanel implements Runnable{
     
     private final int loseState = 1;
     public int getLoseState() {return this.loseState;}
+
+    private final int homeState = 2;
+    public int getHomeState() {return this.homeState;}
 
     //FPS
     private int FPS = 60;
@@ -52,6 +60,18 @@ public class GamePanel extends JPanel implements Runnable{
         this.setDoubleBuffered(true);
         this.addKeyListener(kH);
         this.setFocusable(true);
+        this.initializeButtons();
+        this.addMouseListener(mH);
+        this.addMouseMotionListener(mH);
+    }
+
+    public void initializeButtons(){
+        retry = new Button(this, 300, 300, 100, 100, "retry");
+        home = new Button(this, 600, 300, 100, 100, "home");
+        play = new Button(this, 450, 100, 100, 100, "play");
+        red = new Button(this, this.screenWidth-100, 150, 64, 64, "red");
+        green = new Button(this, this.screenWidth-100, 220, 64, 64, "green");
+        blue = new Button(this, this.screenWidth-100, 290, 64, 64, "blue");
     }
 
     public void startGameThread(){
@@ -87,6 +107,18 @@ public class GamePanel extends JPanel implements Runnable{
             player.update();
             obstacleManager.update();
         }
+        if(state == loseState){
+            retry.update();
+            home.update();
+        }
+        if(state == homeState){
+            bg.update();
+            player.update();
+            play.update();
+            red.update();
+            green.update();
+            blue.update();
+        }
     }
 
     public void paintComponent(Graphics g){
@@ -96,10 +128,20 @@ public class GamePanel extends JPanel implements Runnable{
 
         bg.draw(g2);
         player.draw(g2);
-        obstacleManager.draw(g2);
+
+        if(state == gameState || state == loseState){
+            obstacleManager.draw(g2);
+        }
         
         if(state == loseState){
             drawLoseScreen(g2);
+        }
+
+        if(state == homeState){
+            play.draw(g2);
+            red.draw(g2);
+            green.draw(g2);
+            blue.draw(g2);
         }
 
         g2.dispose();
@@ -112,8 +154,25 @@ public class GamePanel extends JPanel implements Runnable{
         g2.setColor(new Color(255, 0, 0, 100));
         g2.fillRect(0, 80, screenWidth, 120);
 
+        retry.draw(g2);
+        home.draw(g2);
+
         player.drawLoseScore(g2);
 
         g2.setColor(Color.black);
+    }
+
+    public void play(){
+        player.originalStats();
+        obstacleManager.originalStats();
+        bg.setSpeed(5);
+        state = gameState;
+    }
+
+    public void home(){
+        player.originalStats();
+        obstacleManager.originalStats();
+        bg.setSpeed(5);
+        state = homeState;
     }
 }

@@ -28,33 +28,61 @@ public class Player extends Entity {
     private boolean newHighScore;
     private int difficulty;
 
+    private String color;
+    public void setColor(String color) {this.color = color;}
+    private BufferedImage[] redDuck = new BufferedImage[7];
+    private BufferedImage[] greenDuck = new BufferedImage[7];
+    private BufferedImage[] blueDuck = new BufferedImage[7];
+
     public Player(GamePanel gp, KeyHandler kH) {
         super(300, 300, 7);
         this.gp = gp;
         this.kH = kH;
         this.getPlayerImage();
         this.duckHitbox = new Rectangle(this.getX()+2, this.getY()+7, 57, 57);
+        this.color = "red";
         this.originalStats();
     }
 
     public void originalStats() {
+        this.setX(300);
+        this.setY(300);
         this.score = 0.0;
         this.duckState = 1;
         this.isJumping = false;
         this.difficulty = 0;
         this.newHighScore = false;
         this.canJumpAgain = true;
+        this.delta = 0;
+        this.lastTime = System.nanoTime();
     }
 
     public void getPlayerImage() {
         try {
-            img1 = ImageIO.read(getClass().getResourceAsStream("/image/duck/red/duck1.png"));
-            img2 = ImageIO.read(getClass().getResourceAsStream("/image/duck/red/duck2.png"));
-            img3 = ImageIO.read(getClass().getResourceAsStream("/image/duck/red/duck3.png"));
-            img4 = ImageIO.read(getClass().getResourceAsStream("/image/duck/red/duck4.png"));
-            img5 = ImageIO.read(getClass().getResourceAsStream("/image/duck/red/duck5.png"));
-            img6 = ImageIO.read(getClass().getResourceAsStream("/image/duck/red/duck6.png"));
-            imgJump = ImageIO.read(getClass().getResourceAsStream("/image/duck/red/duckjump.png"));
+            redDuck[0] = ImageIO.read(getClass().getResourceAsStream("/image/duck/red/duck1.png"));
+            redDuck[1] = ImageIO.read(getClass().getResourceAsStream("/image/duck/red/duck2.png"));
+            redDuck[2] = ImageIO.read(getClass().getResourceAsStream("/image/duck/red/duck3.png"));
+            redDuck[3] = ImageIO.read(getClass().getResourceAsStream("/image/duck/red/duck4.png"));
+            redDuck[4] = ImageIO.read(getClass().getResourceAsStream("/image/duck/red/duck5.png"));
+            redDuck[5] = ImageIO.read(getClass().getResourceAsStream("/image/duck/red/duck6.png"));
+            redDuck[6] = ImageIO.read(getClass().getResourceAsStream("/image/duck/red/duckjump.png"));
+
+            greenDuck[0] = ImageIO.read(getClass().getResourceAsStream("/image/duck/green/duck1.png"));
+            greenDuck[1] = ImageIO.read(getClass().getResourceAsStream("/image/duck/green/duck2.png"));
+            greenDuck[2] = ImageIO.read(getClass().getResourceAsStream("/image/duck/green/duck3.png"));
+            greenDuck[3] = ImageIO.read(getClass().getResourceAsStream("/image/duck/green/duck4.png"));
+            greenDuck[4] = ImageIO.read(getClass().getResourceAsStream("/image/duck/green/duck5.png"));
+            greenDuck[5] = ImageIO.read(getClass().getResourceAsStream("/image/duck/green/duck6.png"));
+            greenDuck[6] = ImageIO.read(getClass().getResourceAsStream("/image/duck/green/duckjump.png"));
+
+            blueDuck[0] = ImageIO.read(getClass().getResourceAsStream("/image/duck/blue/duck1.png"));
+            blueDuck[1] = ImageIO.read(getClass().getResourceAsStream("/image/duck/blue/duck2.png"));
+            blueDuck[2] = ImageIO.read(getClass().getResourceAsStream("/image/duck/blue/duck3.png"));
+            blueDuck[3] = ImageIO.read(getClass().getResourceAsStream("/image/duck/blue/duck4.png"));
+            blueDuck[4] = ImageIO.read(getClass().getResourceAsStream("/image/duck/blue/duck5.png"));
+            blueDuck[5] = ImageIO.read(getClass().getResourceAsStream("/image/duck/blue/duck6.png"));
+            blueDuck[6] = ImageIO.read(getClass().getResourceAsStream("/image/duck/blue/duckjump.png"));
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -73,58 +101,93 @@ public class Player extends Entity {
             delta--;
         }
 
-        score+=0.1;
+        if (this.gp.getState() == gp.getGameState()) {
+            score+=0.1;
 
-        if((int)score==600){
-            difficulty++;
-            gp.getObstacleManager().setObstacleSpeed(15);
-            gp.getObstacleManager().setSecondMultiplier(500);
-            gp.getBackgrounds().setSpeed(15);
-            gp.getObstacleManager().setRandomTimer(3);
-        }
+            if((int)score==600){
+                difficulty++;
+                gp.getObstacleManager().setObstacleSpeed(15);
+                gp.getObstacleManager().setSecondMultiplier(500);
+                gp.getBackgrounds().setSpeed(15);
+                gp.getObstacleManager().setRandomTimer(3);
+            }
 
-        if(difficulty < 6){
-            if((int)score%100 == 0){
-                if(difficulty!=(int)score/100){
-                    difficulty++;
-                    gp.getObstacleManager().setObstacleSpeed(gp.getObstacleManager().getObstacleSpeed()+1);
-                    gp.getObstacleManager().setSecondMultiplier(gp.getObstacleManager().getSecondMultiplier()-100);
-                    gp.getBackgrounds().setSpeed(gp.getObstacleManager().getObstacleSpeed());
+            if(difficulty < 6){
+                if((int)score%100 == 0){
+                    if(difficulty!=(int)score/100){
+                        difficulty++;
+                        gp.getObstacleManager().setObstacleSpeed(gp.getObstacleManager().getObstacleSpeed()+1);
+                        gp.getObstacleManager().setSecondMultiplier(gp.getObstacleManager().getSecondMultiplier()-100);
+                        gp.getBackgrounds().setSpeed(gp.getObstacleManager().getObstacleSpeed());
+                    }
+                }
+            }
+
+            if(kH.isSpacePressed()){
+                if(this.getY()>180 && canJumpAgain){
+                    this.setY(this.getY()-this.getSpeed());
+                    isJumping = true;
+                    changeHitboxToJump();
+                }
+                else{
+                    kH.setSpacePressed(false);
+                    canJumpAgain = false;
+                }
+            }
+            if(kH.isLeftPressed()){
+                if(this.getX()-this.getSpeed() >= 0){
+                    this.setX(this.getX()-this.getSpeed());
+                }
+            }
+            if(kH.isRightPressed()){
+                if (this.getX()+this.getSpeed()+gp.getTileSize() < gp.getWidth()){
+                    this.setX(this.getX()+this.getSpeed());
+                }  
+            }
+            if(!kH.isSpacePressed()){
+                canJumpAgain = false;
+                if (this.getY() < 300) {
+                    this.setY(getY()+this.getSpeed());
+                    changeHitboxToJump();
+                }
+                else{
+                    canJumpAgain = true;
+                    isJumping = false;
+                    changeHitboxToRun();
                 }
             }
         }
-        
-        if(kH.isSpacePressed()){
-            if(this.getY()>180 && canJumpAgain){
-                this.setY(this.getY()-this.getSpeed());
-                isJumping = true;
-                changeHitboxToJump();
-            }
-            else{
-                kH.setSpacePressed(false);
-                canJumpAgain = false;
-            }
-        }
-        if(kH.isLeftPressed()){
-            if(this.getX()-this.getSpeed() >= 0){
-                this.setX(this.getX()-this.getSpeed());
-            }
-        }
-        if(kH.isRightPressed()){
-            if (this.getX()+this.getSpeed()+gp.getTileSize() < gp.getWidth()){
-                this.setX(this.getX()+this.getSpeed());
-            }  
-        }
-        if(!kH.isSpacePressed()){
-            canJumpAgain = false;
-            if (this.getY() < 300) {
-                this.setY(getY()+this.getSpeed());
-                changeHitboxToJump();
-            }
-            else{
-                canJumpAgain = true;
-                isJumping = false;
-                changeHitboxToRun();
+        else{
+            switch (color) {
+                case "red":
+                    img1 = redDuck[0];
+                    img2 = redDuck[1];
+                    img3 = redDuck[2];
+                    img4 = redDuck[3];
+                    img5 = redDuck[4];
+                    img6 = redDuck[5];
+                    imgJump = redDuck[6];
+                    break;
+            
+                case "green":
+                    img1 = greenDuck[0];
+                    img2 = greenDuck[1];
+                    img3 = greenDuck[2];
+                    img4 = greenDuck[3];
+                    img5 = greenDuck[4];
+                    img6 = greenDuck[5];
+                    imgJump = greenDuck[6];
+                    break;
+
+                case "blue":
+                    img1 = blueDuck[0];
+                    img2 = blueDuck[1];
+                    img3 = blueDuck[2];
+                    img4 = blueDuck[3];
+                    img5 = blueDuck[4];
+                    img6 = blueDuck[5];
+                    imgJump = blueDuck[6];
+                    break;
             }
         }
     }
